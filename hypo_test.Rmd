@@ -1,11 +1,16 @@
 ---
 title: "Statistical hypothesis test review"
-output: 
-  html_document:
-    keep_md: true
+
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+```
 
 ## Objective
 
@@ -20,8 +25,7 @@ Let's see two cases depending on the nature of the random variable:
 
 For simplicity we will consider the sample sizes before and after the change = ```n```
 
-
-```r
+```{r params}
 before_distribution_part <- 0.05
 after_distribution_part <- 0.048
 
@@ -32,8 +36,7 @@ std_values <- 0.01 * 2^(seq(0, 8)) # for student's test
 
 In this case, the significance of the change depends on the variance of the random variable and the sample size. Let's see the significance depending on these parameters, assuming that the variance is known to us in advance.
 
-
-```r
+```{r testing-student, cache=TRUE}
 result_student <- data.frame()
 
 for (n in seq(1, 100000, 100)) {
@@ -47,8 +50,7 @@ for (n in seq(1, 100000, 100)) {
 }
 ```
 
-
-```r
+```{r plotting-student, cache=TRUE}
 ggplot(result_student) + 
   geom_line(aes(x = n, y = p.value, color = as.factor(dist_std))) + 
   geom_hline(yintercept = 0.05, color = 'red', linetype = 'dashed') +
@@ -57,37 +59,23 @@ ggplot(result_student) +
   scale_color_discrete(name = 'std')
 ```
 
-![](hypo_test_files/figure-html/plotting-student-1.png)<!-- -->
-
 A relationship is visible, for example, if the standard deviation is 0.08, the significance of 0.05 is achieved when the sample size is greater than 13000.
 
 ### Example of hypothesis testing (normal distribution)
 
 We have the following dataset:
 
-
-```r
+```{r data-student, cache=TRUE}
 data_norm <- read.csv('data_norm.csv')
 
 head(data_norm)
-```
-
-```
-##   trip_id    feature period
-## 1       0 0.04402347 before
-## 2       1 0.03787196 before
-## 3       2 0.05046686 before
-## 4       3 0.08016472 before
-## 5       4 0.07923912 before
-## 6       5 0.03801651 before
 ```
 
 There are 1000 observations in BEFORE period and 1000 AFTER.
 
 **Purpose** - determine whether this change is significant..
 
-
-```r
+```{r student}
 data_before <- data_norm %>% filter(period == 'before')
 data_after <- data_norm %>% filter(period == 'after')
 
@@ -105,38 +93,16 @@ data_norm %>% ggplot(aes(x = feature, fill = period)) +
   theme_minimal()
 ```
 
-![](hypo_test_files/figure-html/student-1.png)<!-- -->
-
 Samples' means are different. Let's look at the standard deviation.
 
-
-```r
+```{r sd}
 print(paste0('sd = ', round(sd(data_norm$feature), 2)))
-```
-
-```
-## [1] "sd = 0.02"
 ```
 
 To solve the problem, we'll apply [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test) and estimate the statistical significance (alpha = 0.05).
 
-
-```r
+```{r t-test}
 t.test(data_before$feature, data_after$feature) 
-```
-
-```
-## 
-## 	Welch Two Sample t-test
-## 
-## data:  data_before$feature and data_after$feature
-## t = 2.1694, df = 1993.1, p-value = 0.03017
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##  0.0001882836 0.0037350663
-## sample estimates:
-##  mean of x  mean of y 
-## 0.05003201 0.04807034
 ```
 
 **p-value < alpha**, therefore, we reject [the null hypothesis](https://en.wikipedia.org/wiki/Null_hypothesis) on the equality of the two averages of the General population. **Conclusion** - observed changes are statistically **significant**.
@@ -145,8 +111,7 @@ t.test(data_before$feature, data_after$feature)
 
 In this case only the size of the samples affects the significance.
 
-
-```r
+```{r testing-fisher, cache=TRUE}
 result_fisher <- data.frame()
 
 for (n in seq(1, 100000, 100)) {
@@ -169,8 +134,7 @@ for (n in seq(1, 100000, 100)) {
 }
 ```
 
-
-```r
+```{r plotting-fisher, cache=TRUE}
 ggplot(result_fisher) + 
   geom_line(aes(x = n, y = p.value), color = 'green') + 
   geom_hline(yintercept = 0.05, color = 'red', linetype = 'dashed') +
@@ -178,14 +142,11 @@ ggplot(result_fisher) +
   scale_x_continuous(breaks = seq(0, 100000, 10000))
 ```
 
-![](hypo_test_files/figure-html/plotting-fisher-1.png)<!-- -->
-
 The change is significant if the sample size before and after the change is greater than 90 000.
 
 ### Example of hypothesis testing (Bernoulli distribution)
 
-
-```r
+```{r prepare-data, cache=TRUE}
 data_raw <- read.csv('data_bern.csv')
 
 data_prep <- data_raw %>%
@@ -199,59 +160,24 @@ data_group <- data_prep %>%
   )
 ```
 
-We have the following dataset 4520 observations long:
+We have the following dataset `r length(data_raw$dt)` observations long:
 
-
-```r
+```{r}
 head(data_raw)
-```
-
-```
-##           dt user_id is_view
-## 1 2018-11-20  108548       0
-## 2 2018-11-20  113151       0
-## 3 2018-11-20  121937       0
-## 4 2018-11-20  239444       0
-## 5 2018-11-20  352728       0
-## 6 2018-11-20  500709       0
 ```
 
 It contains information of four days, the first two of which - the period "before", the second - "after". Between these dates there was some *change*.
 
-
-```r
+```{r}
 kable(data_group) %>% kable_styling(full_width = F, position = "center")
 ```
-
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:left;"> group </th>
-   <th style="text-align:right;"> count </th>
-   <th style="text-align:right;"> feature </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> after </td>
-   <td style="text-align:right;"> 2260 </td>
-   <td style="text-align:right;"> 4.82 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> before </td>
-   <td style="text-align:right;"> 2260 </td>
-   <td style="text-align:right;"> 5.04 </td>
-  </tr>
-</tbody>
-</table>
 
 The value of the sign after the change decreased by 0.22%.
 **Purpose** - determine whether this change is significant.
 
 To solve the problem we apply [Fischer exact test](https://en.wikipedia.org/wiki/Fisher%27s_exact_test) by constructing a contingency table for our Bernoulli distribution and estimating the statistical significance of the observed data (alpha = 0.05).
 
-
-```r
+```{r}
 data_before <- data_prep %>% filter(group == 'before')
 data_after <- data_prep %>% filter(group == 'after')
 
@@ -267,40 +193,14 @@ con_table <- matrix(
 
 test_res <- fisher.test(con_table)
 p_value <- test_res$p.value
+
 ```
 
 Contingency table:
-<table class="table" style="width: auto !important; ">
- <thead>
-  <tr>
-   <th style="text-align:left;">   </th>
-   <th style="text-align:right;"> Pos </th>
-   <th style="text-align:right;"> Neg </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> Before </td>
-   <td style="text-align:right;"> 114 </td>
-   <td style="text-align:right;"> 2146 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> After </td>
-   <td style="text-align:right;"> 109 </td>
-   <td style="text-align:right;"> 2151 </td>
-  </tr>
-</tbody>
-</table>
+`r kable(con_table) %>% kable_styling(full_width = F, position = "left")`
 
-
-
-
-```r
+```{r}
 print(paste0('p-value = ', round(p_value, 3)))
-```
-
-```
-## [1] "p-value = 0.784"
 ```
 
 Calculated p-value > alpha, so we have no reason to reject the null hypothesis. **Conclusion** - observed changes are statistically **insignificant**.
