@@ -1,16 +1,19 @@
 # Storage
 
-### Work examples
-
-* [International football results from 1872 to 2020](https://www.kaggle.com/bashun/football-the-most-progressive-countries) - the most progressive countries;
-* [Theory hypothesis testing](https://github.com/niqx/Storage/blob/master/hypo_test/Statistical_hypothesis_review.ipynb) in R;
-* [Habr article](https://habr.com/ru/post/512752/) - creating taxi-antifraud system.
-
 ### Profiles
 * [Linkedin](https://www.linkedin.com/in/bashun/)
 * [Headhunter](https://krasnodar.hh.ru/applicant/resumes/view?resume=75e44a57ff03d347eb0039ed1f31314b474864)
 * [DataCamp](https://www.datacamp.com/profile/niqx)
 * [LiveLib](https://www.livelib.ru/reader/niqx?utm_source=livelib&utm_medium=usermenu) :)
+
+### Skills
+`python`, `r`, `sql`, `ml`, `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `dplyr`, `ggplot2`, `jira`, `git`, `ubuntu`, `looker`, `qlik`, `power-bi`, `statistics`, `ab-testing`
+
+### Examples
+
+* [International football results from 1872 to 2020](https://www.kaggle.com/bashun/football-the-most-progressive-countries) - the most progressive countries;
+* [Theory hypothesis testing](https://github.com/niqx/Storage/blob/master/hypo_test/Statistical_hypothesis_review.ipynb) in R;
+* [Habr article](https://habr.com/ru/post/512752/) - creating taxi-antifraud system.
 
 ### Contacts
 * **e-mail** - bniqniq@gmail.com
